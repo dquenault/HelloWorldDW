@@ -1,5 +1,27 @@
-apply plugin: "java"
-apply plugin: "application"
+apply plugin: 'java'
+apply plugin: 'gradle-one-jar'
+apply plugin: 'application'
+
+// Use Java 7 by default   *** Need to get java sdk for 7 on mac TODO!!
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
+// UTF-8 should be standard by now. So use it!
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+// The main class of the application
+mainClassName = 'com.dq.hwservice.HelloWorld'
+
+// Add Gradle OneJar Plugin, see https://github.com/rholder/gradle-one-jar
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.3'
+    }
+}
 
 // Set our project variables
 project.ext {
@@ -18,4 +40,23 @@ dependencies {
             'com.yammer.dropwizard:dropwizard-auth:' + dropwizardVersion,
             'com.h2database:h2:1.3.168'
     )
+}
+
+// Configure the oneJar task
+task oneJar(type: OneJar) {
+    mainClass = mainClassName
+}
+
+// Configure the run task to start the Dropwizard service
+run {
+    args 'server', './src/main/resources/hello-world.yml'
+
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.9'
+}
+
+artifacts {
+    oneJar
 }
